@@ -24,6 +24,7 @@ async function run() {
 
         const db = client.db("hireloop_db");
         const jobsCollection = db.collection("jobs");
+        const companyCollection = db.collection("companies")
 
         app.get('/api/jobs', async (req, res) => {
             const query = {};
@@ -40,7 +41,11 @@ async function run() {
 
         app.post('/api/jobs', async (req, res) => {
             const job = req.body;
-            const result = await jobsCollection.insertOne(job);
+            const newJob = {
+                ...job,
+                createdAt: new Date()
+             }
+            const result = await jobsCollection.insertOne(newJob);
             res.send(result)
         })
 
