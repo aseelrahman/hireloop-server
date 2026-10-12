@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -22,6 +22,13 @@ async function run() {
     const db = client.db("hireloop_db");
     const jobsCollection = db.collection("jobs");
     const companyCollection = db.collection("companies");
+    const usersCollection = db.collection("user");
+
+    app.get("/api/users", async (req, res) => {
+      const cursor = usersCollection.find().skip(6);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
     app.get("/api/jobs", async (req, res) => {
       const query = {};
@@ -46,7 +53,13 @@ async function run() {
       res.send(result);
     });
 
-    // company related apis
+      // company related apis
+      
+      app.get('/api/companies', async (req, res) => {
+          const cursor = companyCollection.find().skip(4);
+          const result = await cursor.toArray();
+          res.send(result);
+      })
 
     app.get("/api/my/companies", async (req, res) => {
       const query = {};
@@ -54,7 +67,7 @@ async function run() {
         query.recruiterId = req.query.recruiterId;
       }
       const result = await companyCollection.findOne(query);
-      res.send(result);
+      res.send(result || {});
     });
 
     app.post("/api/companies", async (req, res) => {
