@@ -53,13 +53,22 @@ async function run() {
       res.send(result);
     });
 
-      // company related apis
-      
-      app.get('/api/companies', async (req, res) => {
-          const cursor = companyCollection.find().skip(4);
-          const result = await cursor.toArray();
-          res.send(result);
-      })
+    app.get(`/api/jobs/:id`, async (req, res) => {
+      const id = req.params.id;
+      const query = {
+        _id: new ObjectId(id),
+      };
+      const result = await jobsCollection.findOne(query);
+      res.send(result);
+    });
+
+    // company related apis
+
+    app.get("/api/companies", async (req, res) => {
+      const cursor = companyCollection.find().skip(4);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
     app.get("/api/my/companies", async (req, res) => {
       const query = {};
