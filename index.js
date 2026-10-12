@@ -23,6 +23,7 @@ async function run() {
     const jobsCollection = db.collection("jobs");
     const companyCollection = db.collection("companies");
     const usersCollection = db.collection("user");
+    const applicationsCollection = db.collection("applications");
 
     app.get("/api/users", async (req, res) => {
       const cursor = usersCollection.find().skip(6);
@@ -59,6 +60,18 @@ async function run() {
         _id: new ObjectId(id),
       };
       const result = await jobsCollection.findOne(query);
+      res.send(result);
+    });
+
+    //application related apis
+
+    app.post("/api/applications", async (req, res) => {
+      const application = req.body;
+      const newApplication = {
+        ...application,
+        createdAt: new Date(),
+      };
+      const result = await applicationsCollection.insertOne(newApplication);
       res.send(result);
     });
 
