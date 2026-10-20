@@ -98,13 +98,49 @@ async function run() {
     // Jobs related APIs
 
     app.get("/api/jobs", async (req, res) => {
+      console.log("Server Side q: ", req.query);
       const query = {};
+
+      //job filter releted query
+      if (req.query.search) {
+        query.$or = [
+          { title: { $regex: req.query.search, $options: "i" } },
+          { company: { $regex: req.query.search, $options: "i" } },
+        ];
+      }
+      if (req.query.type) {
+        query.type = req.query.type;
+      }
+      if (req.query.category) {
+        query.category = req.query.category;
+      }
+      if (req.query.isRemote === "true") {
+        query.isRemote = true;
+      }
+
+      // company related query
       if (req.query.companyId) {
         query.companyId = req.query.companyId;
       }
       if (req.query.status) {
         query.status = req.query.status;
       }
+
+      //paginaiton reletated work
+      if (req.query.page) {
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+        const perPage = Math.max(1, parseInt(req.query.perPage, 10) || 12);
+        const skipItems = (page - 1) * perPage;
+
+        const total = await jobsCollection.countDocuments(query);
+        const cursor = jobsCollection
+          .find(query)
+          .skip(skipItems)
+          .limit(perPage);
+        const jobs = await cursor.toArray();
+        return res.send({ total, jobs });
+      }
+
       const cursor = jobsCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
